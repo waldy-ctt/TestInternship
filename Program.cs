@@ -16,7 +16,7 @@ namespace TestInternship
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new insertDataForm());
+            Application.Run(new sumForm());
         }
     }
 }

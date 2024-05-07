@@ -56,6 +56,8 @@ namespace TestInternship
 
         private async void btn_add_Click(object sender, EventArgs e)
         {
+            Console.WriteLine("timer start!");
+            Console.WriteLine(DateTime.Now.ToString());
             if (string.IsNullOrEmpty(txtBox_times.Text)) return;
 
             var dbClient = new MongoClient(connectionString);
@@ -69,7 +71,12 @@ namespace TestInternship
                 newUserList.Add(newUserData);
             }
 
+            var tempFilter = Builders<userData>.Filter.Empty;
+
             await userDataCollection.InsertManyAsync(newUserList);
+            Console.WriteLine("new user list lenght:" + userDataCollection.CountDocuments(tempFilter));
+            Console.WriteLine("timer end!!");
+            Console.WriteLine(DateTime.Now.ToString());
             loadData();
             dataGridView1.Refresh();
             label1.Text = "done";
@@ -84,11 +91,7 @@ namespace TestInternship
 
         private void txtBox_times_KeyPress(object sender, KeyPressEventArgs e)
         {
-            if (char.IsNumber(e.KeyChar))
-            {
-                e.Handled = false;
-            }
-            else
+            if (char.IsLetter(e.KeyChar) || char.IsSymbol(e.KeyChar) || char.IsPunctuation(e.KeyChar) || char.IsSeparator(e.KeyChar) || char.IsWhiteSpace(e.KeyChar))
             {
                 e.Handled = true;
             }
