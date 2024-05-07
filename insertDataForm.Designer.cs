@@ -29,6 +29,10 @@
         private void InitializeComponent()
         {
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            this.txt_1 = new System.Windows.Forms.Label();
+            this.txtBox_times = new System.Windows.Forms.TextBox();
+            this.btn_add = new System.Windows.Forms.Button();
+            this.btn_refresh = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.SuspendLayout();
@@ -40,16 +44,52 @@
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.RowHeadersWidth = 51;
             this.dataGridView1.RowTemplate.Height = 24;
-            this.dataGridView1.Size = new System.Drawing.Size(869, 479);
+            this.dataGridView1.Size = new System.Drawing.Size(660, 479);
             this.dataGridView1.TabIndex = 0;
+            // 
+            // txt_1
+            // 
+            this.txt_1.AutoSize = true;
+            this.txt_1.Location = new System.Drawing.Point(711, 12);
+            this.txt_1.Name = "txt_1";
+            this.txt_1.Size = new System.Drawing.Size(118, 16);
+            this.txt_1.TabIndex = 1;
+            this.txt_1.Text = "Số dòng cần thêm:";
+            // 
+            // txtBox_times
+            // 
+            this.txtBox_times.Location = new System.Drawing.Point(714, 44);
+            this.txtBox_times.Name = "txtBox_times";
+            this.txtBox_times.Size = new System.Drawing.Size(164, 22);
+            this.txtBox_times.TabIndex = 2;
+            // 
+            // btn_add
+            // 
+            this.btn_add.Location = new System.Drawing.Point(714, 92);
+            this.btn_add.Name = "btn_add";
+            this.btn_add.Size = new System.Drawing.Size(75, 23);
+            this.btn_add.TabIndex = 3;
+            this.btn_add.Text = "Thêm";
+            this.btn_add.UseVisualStyleBackColor = true;
+            this.btn_add.Click += new System.EventHandler(this.btn_add_Click);
+            // 
+            // btn_refresh
+            // 
+            this.btn_refresh.Location = new System.Drawing.Point(803, 92);
+            this.btn_refresh.Name = "btn_refresh";
+            this.btn_refresh.Size = new System.Drawing.Size(75, 23);
+            this.btn_refresh.TabIndex = 3;
+            this.btn_refresh.Text = "Refresh";
+            this.btn_refresh.UseVisualStyleBackColor = true;
+            this.btn_refresh.Click += new System.EventHandler(this.btn_refresh_Click);
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(1013, 111);
+            this.label1.Location = new System.Drawing.Point(924, 147);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(44, 16);
-            this.label1.TabIndex = 1;
+            this.label1.TabIndex = 4;
             this.label1.Text = "label1";
             // 
             // insertDataForm
@@ -58,6 +98,10 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1312, 503);
             this.Controls.Add(this.label1);
+            this.Controls.Add(this.btn_refresh);
+            this.Controls.Add(this.btn_add);
+            this.Controls.Add(this.txtBox_times);
+            this.Controls.Add(this.txt_1);
             this.Controls.Add(this.dataGridView1);
             this.Name = "insertDataForm";
             this.Text = "insertDataForm";
@@ -71,6 +115,10 @@
         #endregion
 
         private System.Windows.Forms.DataGridView dataGridView1;
+        private System.Windows.Forms.Label txt_1;
+        private System.Windows.Forms.TextBox txtBox_times;
+        private System.Windows.Forms.Button btn_add;
+        private System.Windows.Forms.Button btn_refresh;
         private System.Windows.Forms.Label label1;
     }
 }

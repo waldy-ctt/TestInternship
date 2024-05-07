@@ -1,4 +1,5 @@
 ﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,11 +8,26 @@ using System.Threading.Tasks;
 
 namespace TestInternship.Database
 {
+    [BsonIgnoreExtraElements]
     internal class userData
     {
-        public ObjectId Id { get; set; }
-        public string Name { get; set; }
-        public string Email { get; set; }
-        public string Password { get; set; }
+        [BsonId]
+        public ObjectId _id { get; set; }
+
+        [BsonElement("id")]
+        public string id { get; set; }
+
+        [BsonElement("username")]
+        public string username { get; set; }
+
+        public userData()
+        {
+        }
+
+        public userData(string id, string username)
+        {
+            this.id = id;
+            this.username = username;
+        }
     }
 }
