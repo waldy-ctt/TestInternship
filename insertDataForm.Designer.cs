@@ -62,6 +62,7 @@
             this.txtBox_times.Name = "txtBox_times";
             this.txtBox_times.Size = new System.Drawing.Size(164, 22);
             this.txtBox_times.TabIndex = 2;
+            this.txtBox_times.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtBox_times_KeyPress);
             // 
             // btn_add
             // 

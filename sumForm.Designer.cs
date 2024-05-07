@@ -60,6 +60,7 @@
             this.txtBox_a.Name = "txtBox_a";
             this.txtBox_a.Size = new System.Drawing.Size(146, 22);
             this.txtBox_a.TabIndex = 1;
+            this.txtBox_a.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtBox_a_KeyPress);
             // 
             // txtBox_b
             // 
@@ -67,6 +68,7 @@
             this.txtBox_b.Name = "txtBox_b";
             this.txtBox_b.Size = new System.Drawing.Size(146, 22);
             this.txtBox_b.TabIndex = 1;
+            this.txtBox_b.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtBox_a_KeyPress);
             // 
             // btn_calc
             // 

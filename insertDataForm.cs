@@ -81,5 +81,17 @@ namespace TestInternship
             loadData();
             dataGridView1.Refresh();
         }
+
+        private void txtBox_times_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (char.IsNumber(e.KeyChar))
+            {
+                e.Handled = false;
+            }
+            else
+            {
+                e.Handled = true;
+            }
+        }
     }
 }
