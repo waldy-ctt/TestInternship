@@ -135,6 +135,8 @@ namespace TestInternship
 
                 List<userInfo> listOfUser = new List<userInfo>();
 
+                int timeA = 0, timeB = 0, indexA = 0, indexB = 0;
+
                 DateTime createList = DateTime.Now;
                 for (int i = 0; i < times; i++)
                 {
@@ -146,9 +148,16 @@ namespace TestInternship
 
                 MySqlCommand cmd;
 
-                int timeA = 0, timeB = 0;
+                if (times == 1)
+                {
+                    timeA = 1;
+                    timeB = 0;
 
-                if (times % 2 == 0)
+                    indexA = 0;
+                    indexB = 0;
+                }
+
+                if (times % 2 == 0 && times > 1)
                 {
                     timeA = times / 2;
                     timeB = times - timeA;
@@ -159,6 +168,20 @@ namespace TestInternship
                     timeB = times - timeA - 1;
                 }
 
+                if (times % 2 == 0 && times > 1)
+                {
+                    indexA = 0;
+                    indexB = times / 2;
+                }
+                else
+                {
+                    indexA = 0;
+                    indexB = times / 2;
+                }
+
+                Console.WriteLine("Time A: " + timeA + " Time B: " + timeB);
+                Console.WriteLine("Index A: " + indexA + " Index B: " + indexB);
+
                 DateTime startWriter1 = DateTime.Now;
 
                 StreamWriter file1 = File.CreateText(tempFilePath1);
@@ -166,7 +189,7 @@ namespace TestInternship
                 file1.WriteLine("id\tusername");
                 file1.WriteLine();
 
-                for (int i = 0; i < timeA; i++)
+                for (int i = indexA; i < timeA; i++)
                 {
                     file1.WriteLine($"{listOfUser[i].id}\t{listOfUser[i].username}");
                 }
@@ -183,9 +206,10 @@ namespace TestInternship
                 file2.WriteLine("id\tusername");
                 file2.WriteLine();
 
-                for (int i = timeB; i < times; i++)
+                for (int i = 0; i < timeB; i++)
                 {
-                    file2.WriteLine($"{listOfUser[i].id}\t{listOfUser[i].username}");
+                    file2.WriteLine($"{listOfUser[indexB].id}\t{listOfUser[indexB].username}");
+                    indexB++;
                 }
                 file2.Close();
 
