@@ -183,7 +183,7 @@ namespace TestInternship
                 file2.WriteLine("id\tusername");
                 file2.WriteLine();
 
-                for (int i = 0; i < timeB; i++)
+                for (int i = timeB; i < times; i++)
                 {
                     file2.WriteLine($"{listOfUser[i].id}\t{listOfUser[i].username}");
                 }
