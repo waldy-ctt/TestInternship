@@ -3,25 +3,26 @@ using Amazon.Runtime.Internal.Auth;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Core.Clusters;
+using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Numerics;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using TestInternship.Database;
+using TestInternship.mySQL;
 
 namespace TestInternship
 {
     public partial class insertDataForm : Form
     {
-        private String connectionString = "mongodb://localhost:27017/";
-        private String databaseName = "test1";
-
-        private string collectionName = "testcol";
+        private MySqlConnection conn;
+        private string sqlConnectionString = "server=localhost;user=root;database=interntest;port=3306;password=sieunhan1234aB!";
 
         public insertDataForm()
         {
@@ -31,20 +32,34 @@ namespace TestInternship
 
         private async void loadData()
         {
-            var dbClient = new MongoClient(connectionString);
-            var database = dbClient.GetDatabase(databaseName);
-            var userDataCollection = database.GetCollection<userData>(collectionName);
+            List<userInfo> userList = new List<userInfo>();
 
-            var filter = Builders<userData>.Filter.Empty;
-            var allUser = await userDataCollection.Find(filter).ToListAsync();
+            try
+            {
+                conn = new MySqlConnection(sqlConnectionString);
+                conn.Open();
 
-            dataGridView1.DataSource = allUser;
+                string sql = "select * from userdata";
+                MySqlCommand command = new MySqlCommand(sql, conn);
+                MySqlDataReader reader = command.ExecuteReader();
 
-            dataGridView1.Columns["_id"].Visible = false;
+                while (reader.Read())
+                {
+                    userInfo newUserInfo = new userInfo() { id = reader[0].ToString(), username = reader[1].ToString() };
 
-            dataGridView1.Columns["id"].HeaderText = "ID";
+                    userList.Add(newUserInfo);
+                }
 
-            dataGridView1.Columns["username"].HeaderText = "UserName";
+                reader.Close();
+
+                dataGridView1.DataSource = userList;
+            }
+            catch (MySqlException ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+
+            dataGridView1.Refresh();
         }
 
         private void insertDataForm_Load(object sender, EventArgs e)
@@ -56,37 +71,52 @@ namespace TestInternship
 
         private async void btn_add_Click(object sender, EventArgs e)
         {
-            Console.WriteLine("timer start!");
-            Console.WriteLine(DateTime.Now.ToString());
-            if (string.IsNullOrEmpty(txtBox_times.Text)) return;
+            Console.WriteLine("Timer Start!");
+            Console.WriteLine(DateTime.Now);
+            if (txtBox_times.Text.Length == 0) return;
+            BigInteger times = BigInteger.Parse(txtBox_times.Text);
 
-            var dbClient = new MongoClient(connectionString);
-            var database = dbClient.GetDatabase(databaseName);
-            var userDataCollection = database.GetCollection<userData>(collectionName);
-
-            var newUserList = new List<userData>();
-            for (int i = 0; i < int.Parse(txtBox_times.Text); i++)
+            try
             {
-                userData newUserData = new userData() { id = "", username = "" };
-                newUserList.Add(newUserData);
+                conn = new MySqlConnection(sqlConnectionString);
+                conn.Open();
+
+                StringBuilder sql = new StringBuilder("insert into userdata (id, username) values ");
+                for (BigInteger d = 0; d < times; d++)
+                {
+                    if (d == times - 1)
+                    {
+                        sql.Append("(\"\", \"\")");
+                    }
+                    else
+                    {
+                        sql.Append("(\"\", \"\"),");
+                    }
+                }
+                MySqlCommand command = new MySqlCommand(sql.ToString(), conn);
+                command.ExecuteNonQuery();
+
+                string sql2 = "select count(username) from userdata";
+                command = new MySqlCommand(sql2, conn);
+                object result = command.ExecuteScalar();
+                Console.WriteLine("amount of item in db: " + result);
+            }
+            catch (MySqlException ex)
+            {
+                MessageBox.Show(ex.Message);
+                throw;
             }
 
-            var tempFilter = Builders<userData>.Filter.Empty;
-
-            await userDataCollection.InsertManyAsync(newUserList);
-            Console.WriteLine("new user list lenght:" + userDataCollection.CountDocuments(tempFilter));
-            Console.WriteLine("timer end!!");
-            Console.WriteLine(DateTime.Now.ToString());
-            loadData();
-            dataGridView1.Refresh();
+            Console.WriteLine("Timer End!");
+            Console.WriteLine(DateTime.Now);
+            conn.Close();
             label1.Text = "done";
-            label1.Show();
+            loadData();
         }
 
         private void btn_refresh_Click(object sender, EventArgs e)
         {
             loadData();
-            dataGridView1.Refresh();
         }
 
         private void txtBox_times_KeyPress(object sender, KeyPressEventArgs e)
