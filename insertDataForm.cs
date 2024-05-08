@@ -19,6 +19,7 @@ using TestInternship.mySQL;
 using Tortuga.Chain.DataSources;
 using Tortuga.Chain;
 using System.IO;
+using System.Threading;
 
 namespace TestInternship
 {
@@ -26,7 +27,8 @@ namespace TestInternship
     {
         private MySql.Data.MySqlClient.MySqlConnection conn;
         private string sqlConnectionString = "server=localhost;user=root;database=interntest;port=3306;password=sieunhan1234aB!;AllowLoadLocalInfile=true;";
-        private string tempFilePath = "D:\\bin\\OneDrive\\C# project\\TestInternship\\userdata.txt";
+        private string tempFilePath1 = Directory.GetParent(Environment.CurrentDirectory).Parent.FullName + "\\userdata1.txt";
+        private string tempFilePath2 = Directory.GetParent(Environment.CurrentDirectory).Parent.FullName + "\\userdata2.txt";
 
         public insertDataForm()
         {
@@ -73,6 +75,50 @@ namespace TestInternship
             label1.Visible = false;
         }
 
+        private static void loadDataFromFile1()
+        {
+            string tempFilePath1 = Directory.GetParent(Environment.CurrentDirectory).Parent.FullName + "\\userdata1.txt";
+            MySqlConnection conn;
+            string sqlConnectionString = "server=localhost;user=root;database=interntest;port=3306;password=sieunhan1234aB!;AllowLoadLocalInfile=true;";
+
+            conn = new MySqlConnection(sqlConnectionString);
+            conn.Open();
+
+            MySqlBulkLoader bl = new MySqlBulkLoader(conn);
+            bl.Local = true;
+            bl.TableName = "userdata";
+            bl.FieldTerminator = "\t";
+            bl.LineTerminator = "\n";
+            bl.FileName = tempFilePath1;
+            bl.NumberOfLinesToSkip = 3;
+
+            int count = bl.Load();
+            Console.WriteLine("ended loaddata1");
+            Console.WriteLine(count.ToString() + " line loaded from file");
+        }
+
+        private static void loadDataFromFile2()
+        {
+            string tempFilePath2 = Directory.GetParent(Environment.CurrentDirectory).Parent.FullName + "\\userdata2.txt";
+            MySqlConnection conn;
+            string sqlConnectionString = "server=localhost;user=root;database=interntest;port=3306;password=sieunhan1234aB!;AllowLoadLocalInfile=true;";
+
+            conn = new MySqlConnection(sqlConnectionString);
+            conn.Open();
+
+            MySqlBulkLoader bl = new MySqlBulkLoader(conn);
+            bl.Local = true;
+            bl.TableName = "userdata";
+            bl.FieldTerminator = "\t";
+            bl.LineTerminator = "\n";
+            bl.FileName = tempFilePath2;
+            bl.NumberOfLinesToSkip = 3;
+
+            int count = bl.Load();
+            Console.WriteLine("ended loaddata2");
+            Console.WriteLine(count.ToString() + " line loaded from file");
+        }
+
         private async void btn_add_Click(object sender, EventArgs e)
         {
             Console.WriteLine("Timer Start!");
@@ -100,33 +146,66 @@ namespace TestInternship
 
                 MySqlCommand cmd;
 
-                DateTime startWriter = DateTime.Now;
-                StreamWriter file = File.CreateText(tempFilePath);
-                file.WriteLine("Table\tuserdata\tin\tinterntest\tDatabase");
-                file.WriteLine("id\tusername");
-                file.WriteLine();
-                for (int i = 0; i < times; i++)
+                int timeA = 0, timeB = 0;
+
+                if (times % 2 == 0)
                 {
-                    file.WriteLine($"{listOfUser[i].id}\t{listOfUser[i].username}");
+                    timeA = times / 2;
+                    timeB = times - timeA;
                 }
-                file.Close();
-                DateTime endWriter = DateTime.Now;
-                TimeSpan writeTime = endWriter.Subtract(startWriter);
-                Console.WriteLine("time to write file: " + writeTime.TotalSeconds.ToString() + "s");
+                else
+                {
+                    timeA = (times + 1) / 2;
+                    timeB = times - timeA - 1;
+                }
 
-                //var dataSource = new MySqlDataSource("InternTest DB", "Server=localhost;User=root;Database=interntest;Password=sieunhan1234aB!;AllowLoadLocalInfile=true;");
-                //await dataSource.InsertBulk(listOfUser).ExecuteAsync();
+                DateTime startWriter1 = DateTime.Now;
 
-                MySqlBulkLoader bl = new MySqlBulkLoader(conn);
-                bl.Local = true;
-                bl.TableName = "userdata";
-                bl.FieldTerminator = "\t";
-                bl.LineTerminator = "\n";
-                bl.FileName = "D:\\bin\\OneDrive\\C# project\\TestInternship\\userdata.txt";
-                bl.NumberOfLinesToSkip = 3;
+                StreamWriter file1 = File.CreateText(tempFilePath1);
+                file1.WriteLine("Table\tuserdata\tin\tinterntest\tDatabase");
+                file1.WriteLine("id\tusername");
+                file1.WriteLine();
 
-                int count = bl.Load();
-                Console.WriteLine(count.ToString() + "line loaded from file");
+                for (int i = 0; i < timeA; i++)
+                {
+                    file1.WriteLine($"{listOfUser[i].id}\t{listOfUser[i].username}");
+                }
+                file1.Close();
+
+                DateTime endWriter1 = DateTime.Now;
+                TimeSpan writeTime1 = endWriter1.Subtract(startWriter1);
+                Console.WriteLine("time to write file 1: " + writeTime1.TotalSeconds.ToString() + "s");
+
+                DateTime startWriter2 = DateTime.Now;
+
+                StreamWriter file2 = File.CreateText(tempFilePath2);
+                file2.WriteLine("Table\tuserdata\tin\tinterntest\tDatabase");
+                file2.WriteLine("id\tusername");
+                file2.WriteLine();
+
+                for (int i = 0; i < timeB; i++)
+                {
+                    file2.WriteLine($"{listOfUser[i].id}\t{listOfUser[i].username}");
+                }
+                file2.Close();
+
+                DateTime endWriter2 = DateTime.Now;
+                TimeSpan writeTime2 = endWriter1.Subtract(startWriter2);
+                Console.WriteLine("time to write file 2: " + writeTime2.TotalSeconds.ToString() + "s");
+
+                ThreadStart loadData1st = new ThreadStart(loadDataFromFile1);
+                Thread loadData1 = new Thread(loadData1st);
+                loadData1.Name = "loadData1";
+
+                ThreadStart loadData2nd = new ThreadStart(loadDataFromFile2);
+                Thread loadData2 = new Thread(loadData2nd);
+                loadData2.Name = "loadData2";
+
+                loadData1.Start();
+                loadData2.Start();
+
+                loadData1.Join();
+                loadData2.Join();
 
                 string sql2 = "select count(username) from userdata";
 
@@ -145,7 +224,7 @@ namespace TestInternship
             DateTime end = DateTime.Now;
             Console.WriteLine(end);
 
-            Console.WriteLine("Total Time Cost:");
+            Console.Write("Total Time Cost: ");
             TimeSpan cost = end.Subtract(start);
             Console.WriteLine(cost.TotalSeconds + "s");
 
