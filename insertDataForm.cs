@@ -7,7 +7,7 @@ using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
+using Tortuga.Chain.MySql;
 using System.Drawing;
 using System.Linq;
 using System.Numerics;
@@ -16,13 +16,17 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TestInternship.mySQL;
+using Tortuga.Chain.DataSources;
+using Tortuga.Chain;
+using System.IO;
 
 namespace TestInternship
 {
     public partial class insertDataForm : Form
     {
-        private MySqlConnection conn;
-        private string sqlConnectionString = "server=localhost;user=root;database=interntest;port=3306;password=sieunhan1234aB!";
+        private MySql.Data.MySqlClient.MySqlConnection conn;
+        private string sqlConnectionString = "server=localhost;user=root;database=interntest;port=3306;password=sieunhan1234aB!;AllowLoadLocalInfile=true;";
+        private string tempFilePath = "D:\\bin\\OneDrive\\C# project\\TestInternship\\userdata.txt";
 
         public insertDataForm()
         {
@@ -36,12 +40,12 @@ namespace TestInternship
 
             try
             {
-                conn = new MySqlConnection(sqlConnectionString);
+                conn = new MySql.Data.MySqlClient.MySqlConnection(sqlConnectionString);
                 conn.Open();
 
                 string sql = "select * from userdata";
-                MySqlCommand command = new MySqlCommand(sql, conn);
-                MySqlDataReader reader = command.ExecuteReader();
+                MySql.Data.MySqlClient.MySqlCommand command = new MySql.Data.MySqlClient.MySqlCommand(sql, conn);
+                MySql.Data.MySqlClient.MySqlDataReader reader = command.ExecuteReader();
 
                 while (reader.Read())
                 {
@@ -54,7 +58,7 @@ namespace TestInternship
 
                 dataGridView1.DataSource = userList;
             }
-            catch (MySqlException ex)
+            catch (MySql.Data.MySqlClient.MySqlException ex)
             {
                 MessageBox.Show(ex.Message);
             }
@@ -72,43 +76,79 @@ namespace TestInternship
         private async void btn_add_Click(object sender, EventArgs e)
         {
             Console.WriteLine("Timer Start!");
-            Console.WriteLine(DateTime.Now);
+            DateTime start = DateTime.Now;
+            Console.WriteLine(start);
+
             if (txtBox_times.Text.Length == 0) return;
-            BigInteger times = BigInteger.Parse(txtBox_times.Text);
+            int times = int.Parse(txtBox_times.Text);
 
             try
             {
                 conn = new MySqlConnection(sqlConnectionString);
                 conn.Open();
 
-                StringBuilder sql = new StringBuilder("insert into userdata (id, username) values ");
-                for (BigInteger d = 0; d < times; d++)
+                List<userInfo> listOfUser = new List<userInfo>();
+
+                DateTime createList = DateTime.Now;
+                for (int i = 0; i < times; i++)
                 {
-                    if (d == times - 1)
-                    {
-                        sql.Append("(\"\", \"\")");
-                    }
-                    else
-                    {
-                        sql.Append("(\"\", \"\"),");
-                    }
+                    listOfUser.Add(new userInfo() { id = "", username = "" });
                 }
-                MySqlCommand command = new MySqlCommand(sql.ToString(), conn);
-                command.ExecuteNonQuery();
+                DateTime endList = DateTime.Now;
+                TimeSpan listTime = endList.Subtract(createList);
+                Console.WriteLine("time to create list: " + listTime.TotalSeconds.ToString() + "s");
+
+                MySqlCommand cmd;
+
+                DateTime startWriter = DateTime.Now;
+                StreamWriter file = File.CreateText(tempFilePath);
+                file.WriteLine("Table\tuserdata\tin\tinterntest\tDatabase");
+                file.WriteLine("id\tusername");
+                file.WriteLine();
+                for (int i = 0; i < times; i++)
+                {
+                    file.WriteLine($"{listOfUser[i].id}\t{listOfUser[i].username}");
+                }
+                file.Close();
+                DateTime endWriter = DateTime.Now;
+                TimeSpan writeTime = endWriter.Subtract(startWriter);
+                Console.WriteLine("time to write file: " + writeTime.TotalSeconds.ToString() + "s");
+
+                //var dataSource = new MySqlDataSource("InternTest DB", "Server=localhost;User=root;Database=interntest;Password=sieunhan1234aB!;AllowLoadLocalInfile=true;");
+                //await dataSource.InsertBulk(listOfUser).ExecuteAsync();
+
+                MySqlBulkLoader bl = new MySqlBulkLoader(conn);
+                bl.Local = true;
+                bl.TableName = "userdata";
+                bl.FieldTerminator = "\t";
+                bl.LineTerminator = "\n";
+                bl.FileName = "D:\\bin\\OneDrive\\C# project\\TestInternship\\userdata.txt";
+                bl.NumberOfLinesToSkip = 3;
+
+                int count = bl.Load();
+                Console.WriteLine(count.ToString() + "line loaded from file");
 
                 string sql2 = "select count(username) from userdata";
-                command = new MySqlCommand(sql2, conn);
-                object result = command.ExecuteScalar();
+
+                cmd = new MySqlCommand(sql2, conn);
+
+                object result = cmd.ExecuteScalar();
                 Console.WriteLine("amount of item in db: " + result);
             }
-            catch (MySqlException ex)
+            catch (MySqlConnector.MySqlException ex)
             {
                 MessageBox.Show(ex.Message);
                 throw;
             }
 
             Console.WriteLine("Timer End!");
-            Console.WriteLine(DateTime.Now);
+            DateTime end = DateTime.Now;
+            Console.WriteLine(end);
+
+            Console.WriteLine("Total Time Cost:");
+            TimeSpan cost = end.Subtract(start);
+            Console.WriteLine(cost.TotalSeconds + "s");
+
             conn.Close();
             label1.Text = "done";
             loadData();

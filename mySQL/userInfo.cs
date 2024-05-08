@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace TestInternship.mySQL
 {
+    [Table("userdata")]
     internal class userInfo
     {
         public string id { get; set; }
