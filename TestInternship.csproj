@@ -229,9 +229,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="insertDataForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="insertDataForm.cs" />
     <Compile Include="insertDataForm.Designer.cs">
       <DependentUpon>insertDataForm.cs</DependentUpon>
     </Compile>
