@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Numerics;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -17,19 +18,45 @@ namespace TestInternship
         {
             InitializeComponent();
             txt_c.Visible = false;
-            txtBox_a.Text = "0";
-            txtBox_b.Text = "0";
         }
 
         private void btn_calc_Click(object sender, EventArgs e)
         {
-            BigInteger a = BigInteger.Parse(txtBox_a.Text);
-            BigInteger b = BigInteger.Parse(txtBox_b.Text);
-            BigInteger c = a + b;
+            int aDigit = richTextBox1.Text.Length, bDigit = richTextBox2.Text.Length;
 
-            txt_c.Text = c.ToString();
+            int amountArrayA = 0, amountArrayB = 0;
 
-            txt_c.Visible = true;
+            if (aDigit % 19 == 0)
+            {
+                amountArrayA = aDigit / 19;
+            }
+            else
+            {
+                amountArrayA = (aDigit / 19) + 1;
+            }
+
+            if (bDigit % 19 == 0)
+            {
+                amountArrayB = (bDigit / 19);
+            }
+            else
+            {
+                amountArrayB = (bDigit / 19) + 1;
+            }
+
+            BigInteger[] a = new BigInteger[amountArrayA];
+            BigInteger[] b = new BigInteger[amountArrayB];
+
+            StringBuilder stringA = new StringBuilder(richTextBox1.Text);
+            StringBuilder stringB = new StringBuilder(richTextBox2.Text);
+
+            for (int s = 0; s < amountArrayA; s++)
+            {
+                for (int i = 0; i < 19; i++)
+                {
+                    a[s] = BigInteger.Parse(stringA.ToString());
+                }
+            }
         }
 
         private void txtBox_a_KeyPress(object sender, KeyPressEventArgs e)
@@ -42,14 +69,40 @@ namespace TestInternship
 
         private void txtBox_b_TextChanged(object sender, EventArgs e)
         {
-            if (txtBox_a.TextLength == 0)
+            if (richTextBox1.TextLength == 0)
             {
-                txtBox_a.Text = "0";
+                richTextBox1.Text = "0";
             }
-            if (txtBox_b.TextLength == 0)
+            if (richTextBox2.TextLength == 0)
             {
-                txtBox_b.Text = "0";
+                richTextBox2.Text = "0";
             }
+        }
+
+        private void sumForm_Load(object sender, EventArgs e)
+        {
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            StringBuilder numA = new StringBuilder();
+            for (int i = 0; i < 1000000; i++)
+            {
+                numA.Append("1");
+            }
+
+            richTextBox1.Text = numA.ToString();
+
+            Console.WriteLine(richTextBox1.Text.Length + " A");
+
+            StringBuilder numB = new StringBuilder();
+            for (int i = 0; i < 1000000; i++)
+            {
+                numB.Append("2");
+            }
+
+            richTextBox2.Text = numB.ToString();
+            Console.WriteLine(richTextBox2.Text.Length + " B");
         }
     }
 }

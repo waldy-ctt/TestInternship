@@ -21,12 +21,15 @@ using Tortuga.Chain;
 using System.IO;
 using System.Threading;
 using Tortuga.Anchor;
+using System.Diagnostics;
+using System.Security.AccessControl;
 
 namespace TestInternship
 {
     public class ThreadParam
     {
         public int times { get; set; }
+        public string index { get; set; }
     }
 
     public partial class insertDataForm : Form
@@ -81,325 +84,13 @@ namespace TestInternship
             label1.Visible = false;
         }
 
-        //private static void loadDataFromFile1()
-        //{
-        //    string tempFilePath1 = Directory.GetParent(Environment.CurrentDirectory).Parent.FullName + "\\userdata1.txt";
-        //    MySqlConnection conn;
-        //    string sqlConnectionString = "server=localhost;user=root;database=interntest;port=3306;password=sieunhan1234aB!;AllowLoadLocalInfile=true;";
-
-        //    conn = new MySqlConnection(sqlConnectionString);
-        //    conn.Open();
-
-        //    MySqlBulkLoader bl = new MySqlBulkLoader(conn);
-        //    bl.Local = true;
-        //    bl.TableName = "userdata";
-        //    bl.FieldTerminator = "\t";
-        //    bl.LineTerminator = "\n";
-        //    bl.FileName = tempFilePath1;
-        //    bl.NumberOfLinesToSkip = 3;
-
-        //    int count = bl.Load();
-        //    Console.WriteLine("ended loaddata1");
-        //    Console.WriteLine(count.ToString() + " line loaded from file");
-        //}
-
-        //private static void loadDataFromFile2()
-        //{
-        //    string tempFilePath2 = Directory.GetParent(Environment.CurrentDirectory).Parent.FullName + "\\userdata2.txt";
-        //    MySqlConnection conn;
-        //    string sqlConnectionString = "server=localhost;user=root;database=interntest;port=3306;password=sieunhan1234aB!;AllowLoadLocalInfile=true;";
-
-        //    conn = new MySqlConnection(sqlConnectionString);
-        //    conn.Open();
-
-        //    MySqlBulkLoader bl = new MySqlBulkLoader(conn);
-        //    bl.Local = true;
-        //    bl.TableName = "userdata";
-        //    bl.FieldTerminator = "\t";
-        //    bl.LineTerminator = "\n";
-        //    bl.FileName = tempFilePath2;
-        //    bl.NumberOfLinesToSkip = 3;
-
-        //    int count = bl.Load();
-        //    Console.WriteLine("ended loaddata2");
-        //    Console.WriteLine(count.ToString() + " line loaded from file");
-        //}
-
-        /*Bulk loader (load bulk from file to sql)
-         * Console.WriteLine("Timer Start!");
-            DateTime start = DateTime.Now;
-            Console.WriteLine(start);
-
-            if (txtBox_times.Text.Length == 0) return;
-            int times = int.Parse(txtBox_times.Text);
-
-            try
-            {
-                conn = new MySqlConnection(sqlConnectionString);
-                conn.Open();
-
-                List<userInfo> listOfUser = new List<userInfo>();
-
-                int timeA = 0, timeB = 0, indexA = 0, indexB = 0;
-
-                DateTime createList = DateTime.Now;
-                for (int i = 0; i < times; i++)
-                {
-                    listOfUser.Add(new userInfo() { id = "", username = "" });
-                }
-                DateTime endList = DateTime.Now;
-                TimeSpan listTime = endList.Subtract(createList);
-                Console.WriteLine("time to create list: " + listTime.TotalSeconds.ToString() + "s");
-
-                MySqlCommand cmd;
-
-                if (times == 1)
-                {
-                    timeA = 1;
-                    timeB = 0;
-
-                    indexA = 0;
-                    indexB = 0;
-                }
-
-                if (times % 2 == 0 && times > 1)
-                {
-                    timeA = times / 2;
-                    timeB = times - timeA;
-                }
-                else
-                {
-                    timeA = (times + 1) / 2;
-                    timeB = times - timeA - 1;
-                }
-
-                if (times % 2 == 0 && times > 1)
-                {
-                    indexA = 0;
-                    indexB = times / 2;
-                }
-                else
-                {
-                    indexA = 0;
-                    indexB = times / 2;
-                }
-
-                Console.WriteLine("Time A: " + timeA + " Time B: " + timeB);
-                Console.WriteLine("Index A: " + indexA + " Index B: " + indexB);
-
-                DateTime startWriter1 = DateTime.Now;
-
-                StreamWriter file1 = File.CreateText(tempFilePath1);
-                file1.WriteLine("Table\tuserdata\tin\tinterntest\tDatabase");
-                file1.WriteLine("id\tusername");
-                file1.WriteLine();
-
-                for (int i = indexA; i < timeA; i++)
-                {
-                    file1.WriteLine($"{listOfUser[i].id}\t{listOfUser[i].username}");
-                }
-                file1.Close();
-
-                DateTime endWriter1 = DateTime.Now;
-                TimeSpan writeTime1 = endWriter1.Subtract(startWriter1);
-                Console.WriteLine("time to write file 1: " + writeTime1.TotalSeconds.ToString() + "s");
-
-                DateTime startWriter2 = DateTime.Now;
-
-                StreamWriter file2 = File.CreateText(tempFilePath2);
-                file2.WriteLine("Table\tuserdata\tin\tinterntest\tDatabase");
-                file2.WriteLine("id\tusername");
-                file2.WriteLine();
-
-                for (int i = 0; i < timeB; i++)
-                {
-                    file2.WriteLine($"{listOfUser[indexB].id}\t{listOfUser[indexB].username}");
-                    indexB++;
-                }
-                file2.Close();
-
-                DateTime endWriter2 = DateTime.Now;
-                TimeSpan writeTime2 = endWriter1.Subtract(startWriter2);
-                Console.WriteLine("time to write file 2: " + writeTime2.TotalSeconds.ToString() + "s");
-
-                ThreadStart loadData1st = new ThreadStart(loadDataFromFile1);
-                Thread loadData1 = new Thread(loadData1st);
-                loadData1.Name = "loadData1";
-
-                ThreadStart loadData2nd = new ThreadStart(loadDataFromFile2);
-                Thread loadData2 = new Thread(loadData2nd);
-                loadData2.Name = "loadData2";
-
-                loadData1.Start();
-                loadData2.Start();
-
-                loadData1.Join();
-                loadData2.Join();
-
-                string sql2 = "select count(username) from userdata";
-
-                cmd = new MySqlCommand(sql2, conn);
-
-                object result = cmd.ExecuteScalar();
-                Console.WriteLine("amount of item in db: " + result);
-            }
-            catch (MySqlConnector.MySqlException ex)
-            {
-                MessageBox.Show(ex.Message);
-                throw;
-            }
-
-            Console.WriteLine("Timer End!");
-            DateTime end = DateTime.Now;
-            Console.WriteLine(end);
-
-            Console.Write("Total Time Cost: ");
-            TimeSpan cost = end.Subtract(start);
-            Console.WriteLine(cost.TotalSeconds + "s");
-
-            conn.Close();
-            label1.Text = "done";
-            loadData();
-        }Console.WriteLine("Timer Start!");
-                    DateTime start = DateTime.Now;
-                    Console.WriteLine(start);
-
-                    if (txtBox_times.Text.Length == 0) return;
-                    int times = int.Parse(txtBox_times.Text);
-
-                    try
-                    {
-                        conn = new MySqlConnection(sqlConnectionString);
-                        conn.Open();
-
-                        List<userInfo> listOfUser = new List<userInfo>();
-
-                        int timeA = 0, timeB = 0, indexA = 0, indexB = 0;
-
-                        DateTime createList = DateTime.Now;
-                        for (int i = 0; i < times; i++)
-                        {
-                            listOfUser.Add(new userInfo() { id = "", username = "" });
-                        }
-                        DateTime endList = DateTime.Now;
-                        TimeSpan listTime = endList.Subtract(createList);
-                        Console.WriteLine("time to create list: " + listTime.TotalSeconds.ToString() + "s");
-
-                        MySqlCommand cmd;
-
-                        if (times == 1)
-                        {
-                            timeA = 1;
-                            timeB = 0;
-
-                            indexA = 0;
-                            indexB = 0;
-                        }
-
-                        if (times % 2 == 0 && times > 1)
-                        {
-                            timeA = times / 2;
-                            timeB = times - timeA;
-                        }
-                        else
-                        {
-                            timeA = (times + 1) / 2;
-                            timeB = times - timeA - 1;
-                        }
-
-                        if (times % 2 == 0 && times > 1)
-                        {
-                            indexA = 0;
-                            indexB = times / 2;
-                        }
-                        else
-                        {
-                            indexA = 0;
-                            indexB = times / 2;
-                        }
-
-                        Console.WriteLine("Time A: " + timeA + " Time B: " + timeB);
-                        Console.WriteLine("Index A: " + indexA + " Index B: " + indexB);
-
-                        DateTime startWriter1 = DateTime.Now;
-
-                        StreamWriter file1 = File.CreateText(tempFilePath1);
-                        file1.WriteLine("Table\tuserdata\tin\tinterntest\tDatabase");
-                        file1.WriteLine("id\tusername");
-                        file1.WriteLine();
-
-                        for (int i = indexA; i < timeA; i++)
-                        {
-                            file1.WriteLine($"{listOfUser[i].id}\t{listOfUser[i].username}");
-                        }
-                        file1.Close();
-
-                        DateTime endWriter1 = DateTime.Now;
-                        TimeSpan writeTime1 = endWriter1.Subtract(startWriter1);
-                        Console.WriteLine("time to write file 1: " + writeTime1.TotalSeconds.ToString() + "s");
-
-                        DateTime startWriter2 = DateTime.Now;
-
-                        StreamWriter file2 = File.CreateText(tempFilePath2);
-                        file2.WriteLine("Table\tuserdata\tin\tinterntest\tDatabase");
-                        file2.WriteLine("id\tusername");
-                        file2.WriteLine();
-
-                        for (int i = 0; i < timeB; i++)
-                        {
-                            file2.WriteLine($"{listOfUser[indexB].id}\t{listOfUser[indexB].username}");
-                            indexB++;
-                        }
-                        file2.Close();
-
-                        DateTime endWriter2 = DateTime.Now;
-                        TimeSpan writeTime2 = endWriter1.Subtract(startWriter2);
-                        Console.WriteLine("time to write file 2: " + writeTime2.TotalSeconds.ToString() + "s");
-
-                        ThreadStart loadData1st = new ThreadStart(loadDataFromFile1);
-                        Thread loadData1 = new Thread(loadData1st);
-                        loadData1.Name = "loadData1";
-
-                        ThreadStart loadData2nd = new ThreadStart(loadDataFromFile2);
-                        Thread loadData2 = new Thread(loadData2nd);
-                        loadData2.Name = "loadData2";
-
-                        loadData1.Start();
-                        loadData2.Start();
-
-                        loadData1.Join();
-                        loadData2.Join();
-
-                        string sql2 = "select count(username) from userdata";
-
-                        cmd = new MySqlCommand(sql2, conn);
-
-                        object result = cmd.ExecuteScalar();
-                        Console.WriteLine("amount of item in db: " + result);
-                    }
-                    catch (MySqlConnector.MySqlException ex)
-                    {
-                        MessageBox.Show(ex.Message);
-                        throw;
-                    }
-
-                    Console.WriteLine("Timer End!");
-                    DateTime end = DateTime.Now;
-                    Console.WriteLine(end);
-
-                    Console.Write("Total Time Cost: ");
-                    TimeSpan cost = end.Subtract(start);
-                    Console.WriteLine(cost.TotalSeconds + "s");
-
-                    conn.Close();
-                    label1.Text = "done";
-                    loadData();
-
-        */
-
         private void InsertEmptyIntoMySQL(object p)
         {
+            DateTime threadStart = DateTime.Now;
             ThreadParam tp = p as ThreadParam;
+
+            Stopwatch taskStopwatch = new Stopwatch();
+            taskStopwatch.Start();
 
             MySqlConnection conn = new MySqlConnection(sqlConnectionString);
 
@@ -419,8 +110,17 @@ namespace TestInternship
 
             conn.Close();
 
+            taskStopwatch.Stop();
+
+            DateTime threadEnd = DateTime.Now;
+            TimeSpan threadTime = threadEnd.Subtract(threadStart);
+
+            Console.WriteLine("------------------------------------------------------");
+            Console.WriteLine("time execute thread = " + threadTime.TotalSeconds.ToString() + "s");
+            Console.WriteLine("Task waiting time: " + taskStopwatch.Elapsed.TotalSeconds.ToString() + "s");
             Console.WriteLine("added " + tp.times);
-            Console.WriteLine("ended thread!!");
+            Console.WriteLine("ended thread!! " + tp.index.ToString());
+            Console.WriteLine("------------------------------------------------------");
         }
 
         private async void btn_add_Click(object sender, EventArgs e)
@@ -452,69 +152,45 @@ namespace TestInternship
 
                 //Function
 
-                int timeA = times / 20, timeB = timeA + (times % 20);
+                int threadAmount = 4;
+                int timeA = times / threadAmount, timeB = timeA + (times % threadAmount);
 
-                //if (times % 10 == 0)
-                //{
-                //    timeA = times / 10;
-                //    timeB = times / 10;
-                //}
-                //else
-                //{
-                //    timeA = times / 10;
-                //    timeB = ((times / 10) + (times % 10));
-                //}
-
-                List<Task> tasks = new List<Task>();
+                //List<Task> tasks = new List<Task>();
+                //Task[] tasks = new Task[threadAmount];
+                CountdownEvent cd = new CountdownEvent(threadAmount);
 
                 ThreadParam tp;
                 tp = new ThreadParam();
                 tp.times = timeA;
 
-                for (int l = 0; l < 9; l++)
+                //ThreadPool.SetMaxThreads(1500, 1500);
+                //ThreadPool.SetMinThreads(1000000, 1000000);
+
+                for (int l = 0; l < threadAmount; l++)
                 {
-                    tasks.Add(Task.Run(() => InsertEmptyIntoMySQL(tp)));
+                    tp.index = l.ToString();
+                    ThreadPool.QueueUserWorkItem(new WaitCallback(x =>
+                    {
+                        InsertEmptyIntoMySQL(tp);
+                        cd.Signal();
+                    }
+                    ), tp);
+                    //tasks.Add(Task.Run(() => InsertEmptyIntoMySQL(tp)));
+                    //tasks[l] = Task.Run(() => InsertEmptyIntoMySQL(tp));
                 }
 
-                //Thread load1 = new Thread(new ParameterizedThreadStart(InsertEmptyIntoMySQL));
-                //Thread load2 = new Thread(new ParameterizedThreadStart(InsertEmptyIntoMySQL));
-                //Thread load3 = new Thread(new ParameterizedThreadStart(InsertEmptyIntoMySQL));
-                //Thread load4 = new Thread(new ParameterizedThreadStart(InsertEmptyIntoMySQL));
-                //Thread load5 = new Thread(new ParameterizedThreadStart(InsertEmptyIntoMySQL));
-                //Thread load6 = new Thread(new ParameterizedThreadStart(InsertEmptyIntoMySQL));
-                //Thread load7 = new Thread(new ParameterizedThreadStart(InsertEmptyIntoMySQL));
-                //Thread load8 = new Thread(new ParameterizedThreadStart(InsertEmptyIntoMySQL));
-                //Thread load9 = new Thread(new ParameterizedThreadStart(InsertEmptyIntoMySQL));
-                //load1.Start(tp);
-                //load2.Start(tp);
-                //load3.Start(tp);
-                //load4.Start(tp);
-                //load5.Start(tp);
-                //load6.Start(tp);
-                //load7.Start(tp);
-                //load8.Start(tp);
-                //load9.Start(tp);
+                cd.Wait();
 
-                //Thread load10 = new Thread(new ParameterizedThreadStart(InsertEmptyIntoMySQL));
-                tp = new ThreadParam();
-                tp.times = timeB;
+                //tp = new ThreadParam();
+                //tp.times = timeB;
+                //tp.index = "last";
 
-                tasks.Add(Task.Run(() => InsertEmptyIntoMySQL(tp)));
+                //tasks.Add(Task.Run(() => InsertEmptyIntoMySQL(tp)));
+                //tasks[threadAmount - 1] = Task.Run(() => InsertEmptyIntoMySQL(tp));
+                //ThreadPool.QueueUserWorkItem(new WaitCallback(InsertEmptyIntoMySQL), tp);
 
-                Task.WhenAll(tasks).Wait();
-
-                //load10.Start(tp);
-
-                //load1.Join();
-                //load2.Join();
-                //load3.Join();
-                //load4.Join();
-                //load5.Join();
-                //load6.Join();
-                //load7.Join();
-                //load8.Join();
-                //load9.Join();
-                //load10.Join();
+                //Task.WhenAll(tasks).Wait();
+                //Task.WaitAll(tasks);
 
                 //Function.end
 
@@ -541,6 +217,13 @@ namespace TestInternship
             TimeSpan cost = end.Subtract(start);
             Console.WriteLine(cost.TotalSeconds + "s");
 
+            int coreCount = 0;
+            foreach (var item in new System.Management.ManagementObjectSearcher("Select * from Win32_Processor").Get())
+            {
+                coreCount += int.Parse(item["NumberOfCores"].ToString());
+            }
+            Console.WriteLine("Number Of Cores: {0}", coreCount);
+
             label1.Text = "done";
             loadData();
         }
@@ -556,6 +239,63 @@ namespace TestInternship
             {
                 e.Handled = true;
             }
+        }
+
+        private void InsertEmptyIntoMySQLAsync()
+        {
+            int times = 250000;
+            Stopwatch taskStopwatch = new Stopwatch();
+
+            MySqlConnection conn = new MySqlConnection(sqlConnectionString);
+
+            try
+            {
+                conn.Open();
+                taskStopwatch.Start();
+
+                StringBuilder sql = new StringBuilder("INSERT INTO userdata(id, username) VALUES ");
+                for (int i = 0; i < times; i++)
+                {
+                    sql.Append($"(\"\", \"\"),");
+                }
+
+                char[] trim = { ',' };
+                MySqlCommand cmd = new MySqlCommand(sql.ToString().TrimEnd(trim), conn);
+                cmd.ExecuteNonQuery();
+            }
+            finally
+            {
+                conn.Close();
+            }
+
+            taskStopwatch.Stop();
+            TimeSpan taskTime = taskStopwatch.Elapsed;
+
+            Console.WriteLine("Task waiting time: " + taskTime.TotalSeconds + "s");
+        }
+
+        private async void button1_Click(object sender, EventArgs e)
+        {
+            //test get blocking coefficient
+            DateTime start = DateTime.Now;
+            int time = 8;
+            CountdownEvent cd = new CountdownEvent(time);
+            for (int l = 0; l < time; l++)
+            {
+                ThreadPool.QueueUserWorkItem(new WaitCallback(x =>
+                {
+                    InsertEmptyIntoMySQLAsync();
+                    cd.Signal();
+                }
+                ));
+            }
+
+            cd.Wait();
+
+            DateTime end = DateTime.Now;
+            TimeSpan cost = end.Subtract(start);
+
+            Console.WriteLine("total time: " + cost.TotalSeconds.ToString() + "s");
         }
     }
 }
